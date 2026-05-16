@@ -21,7 +21,7 @@ app.use('/api/', limiter);
 
 // Gemini client
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
 const PROMPT = `You are a math tutor. Solve the given math problem and respond with ONLY valid JSON, no markdown, no extra text.
 
