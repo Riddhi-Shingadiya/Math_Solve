@@ -4,6 +4,7 @@ const multer = require('multer');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const fs = require('fs');
+const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
@@ -19,9 +20,8 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Gemini client
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
 const PROMPT = `You are a math tutor. Solve the given math problem and respond with ONLY valid JSON, no markdown, no extra text.
 
@@ -46,6 +46,26 @@ Rules:
 - If cannot solve, return: {"error": "reason"}
 - Return ONLY JSON, nothing else`;
 
+// Fix MIME type helper
+function getCorrectMimeType(file) {
+  let mimeType = file.mimetype || '';
+  // If MIME is wrong or octet-stream, detect from filename extension
+  if (!mimeType.startsWith('image/') || mimeType === 'application/octet-stream') {
+    const ext = (file.originalname || '').split('.').pop().toLowerCase();
+    const mimeMap = {
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      webp: 'image/webp',
+      gif: 'image/gif',
+      heic: 'image/heic',
+      heif: 'image/heif',
+    };
+    mimeType = mimeMap[ext] || 'image/jpeg'; // default to jpeg
+  }
+  return mimeType;
+}
+
 // Solve from image
 app.post('/api/solve/image', upload.single('image'), async (req, res) => {
   try {
@@ -53,7 +73,9 @@ app.post('/api/solve/image', upload.single('image'), async (req, res) => {
 
     const imageData = fs.readFileSync(req.file.path);
     const base64Image = imageData.toString('base64');
-    const mimeType = req.file.mimetype || 'image/jpeg';
+    const mimeType = getCorrectMimeType(req.file);
+
+    console.log('Received file:', req.file.originalname, '| MIME:', mimeType);
 
     const result = await model.generateContent([
       PROMPT,
