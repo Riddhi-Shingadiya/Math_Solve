@@ -1,14 +1,14 @@
 {
   "name": "mathsolve-pro-server",
   "version": "1.0.0",
-  "description": "MathSolve Pro backend - Google Gemini",
+  "description": "MathSolve Pro backend - Groq",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.15.0",
+    "groq-sdk": "^0.9.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",

@@ -1,11 +1,10 @@
-// server/index.js — Google Gemini (FREE)
+// server/index.js — Groq (FREE - 14400 requests/day)
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const fs = require('fs');
-const path = require('path');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Groq = require('groq-sdk');
 
 const app = express();
 const upload = multer({ dest: 'uploads/', limits: { fileSize: 10 * 1024 * 1024 } });
@@ -15,13 +14,13 @@ app.use(express.json());
 
 const limiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 100,
+  max: 200,
   message: { error: 'Too many requests. Please try again later.' },
 });
 app.use('/api/', limiter);
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+// Groq client — key stays on server, users never see it
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const PROMPT = `You are a math tutor. Solve the given math problem and respond with ONLY valid JSON, no markdown, no extra text.
 
@@ -49,7 +48,6 @@ Rules:
 // Fix MIME type helper
 function getCorrectMimeType(file) {
   let mimeType = file.mimetype || '';
-  // If MIME is wrong or octet-stream, detect from filename extension
   if (!mimeType.startsWith('image/') || mimeType === 'application/octet-stream') {
     const ext = (file.originalname || '').split('.').pop().toLowerCase();
     const mimeMap = {
@@ -58,10 +56,8 @@ function getCorrectMimeType(file) {
       png: 'image/png',
       webp: 'image/webp',
       gif: 'image/gif',
-      heic: 'image/heic',
-      heif: 'image/heif',
     };
-    mimeType = mimeMap[ext] || 'image/jpeg'; // default to jpeg
+    mimeType = mimeMap[ext] || 'image/jpeg';
   }
   return mimeType;
 }
@@ -75,16 +71,31 @@ app.post('/api/solve/image', upload.single('image'), async (req, res) => {
     const base64Image = imageData.toString('base64');
     const mimeType = getCorrectMimeType(req.file);
 
-    console.log('Received file:', req.file.originalname, '| MIME:', mimeType);
+    console.log('File:', req.file.originalname, '| MIME:', mimeType);
 
-    const result = await model.generateContent([
-      PROMPT,
-      { inlineData: { data: base64Image, mimeType } },
-    ]);
+    const response = await groq.chat.completions.create({
+      model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+      max_tokens: 2048,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image_url',
+              image_url: { url: `data:${mimeType};base64,${base64Image}` },
+            },
+            {
+              type: 'text',
+              text: PROMPT,
+            },
+          ],
+        },
+      ],
+    });
 
     fs.unlinkSync(req.file.path);
 
-    const text = result.response.text();
+    const text = response.choices[0]?.message?.content || '{}';
     const clean = text.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
     res.json(parsed);
@@ -101,8 +112,18 @@ app.post('/api/solve/text', async (req, res) => {
     const { problem } = req.body;
     if (!problem?.trim()) return res.status(400).json({ error: 'No problem provided' });
 
-    const result = await model.generateContent(`${PROMPT}\n\nProblem: ${problem}`);
-    const text = result.response.text();
+    const response = await groq.chat.completions.create({
+      model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+      max_tokens: 2048,
+      messages: [
+        {
+          role: 'user',
+          content: `${PROMPT}\n\nProblem: ${problem}`,
+        },
+      ],
+    });
+
+    const text = response.choices[0]?.message?.content || '{}';
     const clean = text.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
     res.json(parsed);
@@ -112,7 +133,7 @@ app.post('/api/solve/text', async (req, res) => {
   }
 });
 
-app.get('/health', (_, res) => res.json({ status: 'ok', service: 'MathSolve Pro - Gemini' }));
+app.get('/health', (_, res) => res.json({ status: 'ok', service: 'MathSolve Pro - Groq' }));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
