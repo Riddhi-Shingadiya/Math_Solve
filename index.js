@@ -261,6 +261,7 @@ app.post('/api/solve/text', async (req, res) => {
     const response = await groq.chat.completions.create({
       model: 'meta-llama/llama-4-scout-17b-16e-instruct',
       max_tokens: 2048,
+      temperature: 0,
       messages: [{ role: 'user', content: `${PROMPT}\n\nProblem: ${problem}` }],
     });
     const text = response.choices[0]?.message?.content || '{}';
