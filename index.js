@@ -212,6 +212,7 @@ Rules:
 - Minimum 3 steps, maximum 8 steps
 - Simple beginner-friendly explanations
 - Be VERY accurate with topic - Time & Work is NOT Algebra
+- "final_answer" must be SHORT and CLEAN — only the answer value, NO explanation, NO sentences. Example: "2.2 hours" not "2.2 hours is closest to 2 hours, so the answer is d) 2.2 hours"
 - If cannot solve, return: {"error": "reason"}
 - Return ONLY JSON, nothing else`;
 
