@@ -289,21 +289,23 @@ app.post('/api/trick', async (req, res) => {
       temperature: 0,
       messages: [{
         role: 'user',
-content: `Give a one-line short trick or formula to solve this ${topic} problem quickly.
+content: `You are a math trick generator like a smart tutor.
 Problem: ${question}
+Topic: ${topic}
 
 Respond with ONLY valid JSON, no markdown:
 {
-  "trick_title": "short catchy title max 5 words",
-  "trick": "ONE LINE only - short trick with actual numbers from this problem showing how to get answer directly",
-  "formula": "key formula to remember e.g. T = (A×B)/(A+B) × (part of work)"
+  "trick_title": "short title max 5 words",
+  "trick": "Show step by step substitution exactly like this example:\nCombined time = (A×B)/(A+B) × (Required/Total)\n= (8×10)/(8+10) × (30/60)\n= 80/18 × 0.5\n= 2.22 hours ✅",
+  "formula": "General formula only. Example: T = (A×B)/(A+B) × (Part/Total)"
 }
 
-Rules:
-- trick must be ONE LINE only
-- Show actual calculation with numbers
-- No long explanations
-- Formula must be short and memorable`,
+STRICT Rules:
+- trick must show: formula name = general formula, then = values substituted, then = simplified, then = final answer ✅
+- Each step on new line starting with =
+- formula field must use letters only
+- Be 100% mathematically correct
+- No extra explanation`,
       }],
     });
 
