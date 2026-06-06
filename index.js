@@ -214,7 +214,9 @@ Rules:
 - Each step must be clear and meaningful, no unnecessary or repeated steps
 - Simple beginner-friendly explanations
 - Be VERY accurate with topic - Time & Work is NOT Algebra
-- "final_answer" must be SHORT and CLEAN — only the answer value, NO explanation, NO sentences. Example: "2.2 hours" not "2.2 hours is closest to 2 hours, so the answer is d) 2.2 hours"
+//- "final_answer" must be SHORT and CLEAN — only the answer value, NO explanation, NO sentences. Example: "2.2 hours" not "2.2 hours is closest to 2 hours, so the answer is d) 2.2 hours"
+- "final_answer" must be SHORT and CLEAN — include the value WITH unit. Example: "2.2 hours" or "x = 5" or "42 km/hr"
+- Never write just a number without unit if the problem has units
 - If the image is NOT a math problem (cartoon, human, animal, random photo, etc.), return: {"error": "This doesn't look like a math problem. Please upload a clear photo of a math question."}
 - If the text is NOT math related, return: {"error": "This doesn't seem to be a math problem. Please enter a valid math question."}
 - If cannot solve, return: {"error": "reason"}- Return ONLY JSON, nothing else`;
