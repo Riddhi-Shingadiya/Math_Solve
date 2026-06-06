@@ -277,6 +277,39 @@ app.post('/api/solve/text', async (req, res) => {
   }
 });
 
+// Get short trick for a problem
+app.post('/api/trick', async (req, res) => {
+  try {
+    const { question, topic } = req.body;
+    if (!question?.trim()) return res.status(400).json({ error: 'No question provided' });
+
+    const response = await groq.chat.completions.create({
+      model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+      max_tokens: 512,
+      temperature: 0,
+      messages: [{
+        role: 'user',
+        content: `Give a short trick or shortcut to solve this ${topic} problem quickly.
+Problem: ${question}
+
+Respond with ONLY valid JSON, no markdown:
+{
+  "trick_title": "short catchy title for the trick",
+  "trick": "one paragraph short trick or shortcut explanation",
+  "formula": "key formula or pattern to remember (if any)"
+}`,
+      }],
+    });
+
+    const text = response.choices[0]?.message?.content || '{}';
+    const clean = text.replace(/\`\`\`json|\`\`\`/g, '').trim();
+    res.json(JSON.parse(clean));
+  } catch (err) {
+    console.error('Trick error:', err.message);
+    res.status(500).json({ error: err.message || 'Failed to get trick' });
+  }
+});
+
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'MathSolve Pro - Groq' }));
 
 const PORT = process.env.PORT || 3000;
