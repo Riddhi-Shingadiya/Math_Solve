@@ -289,15 +289,21 @@ app.post('/api/trick', async (req, res) => {
       temperature: 0,
       messages: [{
         role: 'user',
-        content: `Give a short trick or shortcut to solve this ${topic} problem quickly.
+content: `Give a one-line short trick or formula to solve this ${topic} problem quickly.
 Problem: ${question}
 
 Respond with ONLY valid JSON, no markdown:
 {
-  "trick_title": "short catchy title for the trick",
-  "trick": "one paragraph short trick or shortcut explanation",
-  "formula": "key formula or pattern to remember (if any)"
-}`,
+  "trick_title": "short catchy title max 5 words",
+  "trick": "ONE LINE only - short trick with actual numbers from this problem showing how to get answer directly",
+  "formula": "key formula to remember e.g. T = (A×B)/(A+B) × (part of work)"
+}
+
+Rules:
+- trick must be ONE LINE only
+- Show actual calculation with numbers
+- No long explanations
+- Formula must be short and memorable`,
       }],
     });
 
