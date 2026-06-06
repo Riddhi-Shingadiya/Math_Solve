@@ -162,7 +162,9 @@ app.use('/api/', limiter);
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-const PROMPT = `You are an expert mathematics tutor. Solve the given math problem and respond with ONLY valid JSON, no markdown, no extra text.
+const PROMPT = `You are an expert mathematics professor. Solve the given math problem with 100% accuracy.
+
+IMPORTANT: Think step by step carefully before answering. Double check all calculations.
 
 JSON format:
 {
@@ -176,50 +178,33 @@ JSON format:
       "expression": "math expression for this step"
     }
   ],
-  "final_answer": "the final answer"
+  "final_answer": "the final answer with unit"
 }
 
 TOPIC CLASSIFICATION - pick the most accurate one:
-- Arithmetic (basic addition, subtraction, multiplication, division)
-- Algebra (equations, variables, polynomials, factoring)
-- Quadratic Equations (ax2+bx+c=0 type problems)
-- Linear Equations (single variable equations)
-- Simultaneous Equations (two or more equations)
-- Geometry (shapes, area, perimeter, volume, angles)
-- Trigonometry (sin, cos, tan, angles, triangles)
-- Calculus (differentiation, integration, limits)
-- Statistics (mean, median, mode, probability)
-- Mensuration (area, surface area, volume of 3D shapes)
-- Number Theory (HCF, LCM, prime numbers, divisibility)
-- Percentage (%, discount, profit, loss)
-- Ratio & Proportion (ratio, proportion, direct/inverse variation)
-- Time & Work (work rate problems, pipes and cisterns)
-- Time & Distance (speed, distance, time problems)
-- Simple Interest (SI = PRT/100)
-- Compound Interest (CI problems)
-- Profit & Loss (cost price, selling price, profit, loss)
-- Matrices (matrix operations, determinants)
-- Vectors (vector operations, dot product, cross product)
-- Complex Numbers (real, imaginary, complex plane)
-- Logarithms (log, ln problems)
-- Sequences & Series (AP, GP, HP)
-- Permutation & Combination (nPr, nCr)
-- Probability (events, outcomes, probability)
-- Set Theory (union, intersection, sets)
-- Other (if none of the above match)
+- Arithmetic, Algebra, Quadratic Equations, Linear Equations
+- Simultaneous Equations, Geometry, Trigonometry, Calculus
+- Statistics, Mensuration, Number Theory, Percentage
+- Ratio & Proportion, Time & Work, Time & Distance
+- Simple Interest, Compound Interest, Profit & Loss
+- Matrices, Vectors, Complex Numbers, Logarithms
+- Sequences & Series, Permutation & Combination
+- Probability, Set Theory, Other
 
-Rules:
-//- Minimum 3 steps, maximum 8 steps
-- Show ALL necessary steps to solve the problem completely, do not skip any step
-- Each step must be clear and meaningful, no unnecessary or repeated steps
-- Simple beginner-friendly explanations
-- Be VERY accurate with topic - Time & Work is NOT Algebra
-//- "final_answer" must be SHORT and CLEAN — only the answer value, NO explanation, NO sentences. Example: "2.2 hours" not "2.2 hours is closest to 2 hours, so the answer is d) 2.2 hours"
-- "final_answer" must be SHORT and CLEAN — include the value WITH unit. Example: "2.2 hours" or "x = 5" or "42 km/hr"
-- Never write just a number without unit if the problem has units
-- If the image is NOT a math problem (cartoon, human, animal, random photo, etc.), return: {"error": "This doesn't look like a math problem. Please upload a clear photo of a math question."}
-- If the text is NOT math related, return: {"error": "This doesn't seem to be a math problem. Please enter a valid math question."}
-- If cannot solve, return: {"error": "reason"}- Return ONLY JSON, nothing else`;
+CALCULATION RULES - follow strictly:
+- ALWAYS verify your answer by substituting back
+- For Time & Work: Rate = Work/Time, Combined Rate = Rate1 + Rate2, Time = Work/Combined Rate
+- For Time & Distance: Distance = Speed × Time
+- For Percentage: (Value/Total) × 100
+- For SI: (P × R × T) / 100
+- For Profit/Loss: Profit = SP - CP, Profit% = (Profit/CP) × 100
+- For Quadratic: use formula x = (-b ± √(b²-4ac)) / 2a
+- Show ALL necessary steps, do not skip any
+- Each step must have a clear expression
+- final_answer must include unit if problem has units
+- If NOT a math problem return: {"error": "This doesn't look like a math problem. Please upload a clear photo of a math question."}
+- If text NOT math related return: {"error": "This doesn't seem to be a math problem. Please enter a valid math question."}
+- Return ONLY JSON, nothing else`;
 
 function getCorrectMimeType(file) {
   let mimeType = file.mimetype || '';
@@ -241,6 +226,7 @@ app.post('/api/solve/image', upload.single('image'), async (req, res) => {
     const response = await groq.chat.completions.create({
       model: 'meta-llama/llama-4-scout-17b-16e-instruct',
       max_tokens: 2048,
+      temperature: 0,
       messages: [{
         role: 'user',
         content: [
