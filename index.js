@@ -229,7 +229,7 @@ Respond with ONLY valid JSON, no markdown, no extra text:
   "final_answer": "the final answer with unit"
 }
 
-TOPIC CLASSIFICATION - pick most accurate:
+TOPIC CLASSIFICATION - pick ONE most accurate topic only, never combine multiple:
 - Arithmetic, Algebra, Quadratic Equations, Linear Equations
 - Simultaneous Equations, Geometry, Trigonometry, Calculus
 - Statistics, Mensuration, Number Theory, Percentage
@@ -248,6 +248,8 @@ CALCULATION RULES:
 - For Profit/Loss: Profit = SP - CP, Profit% = (Profit/CP) × 100
 - For Quadratic: x = (-b ± √(b²-4ac)) / 2a
 - For Monkey/Snail pole problems: simulate step by step, check if top reached during climb before slip
+- topic must be ONE single topic only, never write multiple topics
+- expression must be plain text only, NO LaTeX, NO \text{}, NO $$, NO backslashes
 - Show ALL necessary steps, do not skip any
 - final_answer must include unit if problem has units
 - If NOT a math problem return: {"error": "This doesn't look like a math problem. Please upload a clear photo of a math question."}
