@@ -309,9 +309,20 @@ STRICT Rules:
       }],
     });
 
-    const text = response.choices[0]?.message?.content || '{}';
-    const clean = text.replace(/\`\`\`json|\`\`\`/g, '').trim();
-    res.json(JSON.parse(clean));
+  const text = response.choices[0]?.message?.content || '{}';
+  const clean = text
+    .replace(/```json|```/g, '')
+    .replace(/[\u0000-\u001F\u007F-\u009F]/g, ' ') // remove control characters
+    .trim();
+
+  // Parse and re-sanitize values
+  const parsed = JSON.parse(clean);
+  const sanitized = {
+    trick_title: (parsed.trick_title || '').replace(/\n/g, ' ').trim(),
+    trick: (parsed.trick || '').replace(/\\n/g, '\n').trim(),
+    formula: (parsed.formula || '').replace(/\n/g, ' ').trim(),
+  };
+  res.json(sanitized);
   } catch (err) {
     console.error('Trick error:', err.message);
     res.status(500).json({ error: err.message || 'Failed to get trick' });
