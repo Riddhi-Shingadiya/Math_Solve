@@ -359,6 +359,15 @@ app.post('/api/trick', async (req, res) => {
 
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'MathSolve Pro - Gemini 1.5 Pro' }));
 
+const https = require('https');
+setInterval(() => {
+  https.get('https://math-solve-w394.onrender.com/health', (res) => {
+    console.log('Keep alive ping:', res.statusCode);
+  }).on('error', (err) => {
+    console.log('Ping error:', err.message);
+  });
+}, 10 * 60 * 1000); // every 10 minutes
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
