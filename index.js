@@ -229,15 +229,34 @@ Respond with ONLY valid JSON, no markdown, no extra text:
   "final_answer": "the final answer with unit"
 }
 
-TOPIC CLASSIFICATION - pick ONE most accurate topic only, never combine multiple:
-- Arithmetic, Algebra, Quadratic Equations, Linear Equations
-- Simultaneous Equations, Geometry, Trigonometry, Calculus
-- Statistics, Mensuration, Number Theory, Percentage
-- Ratio & Proportion, Time & Work, Time & Distance
-- Simple Interest, Compound Interest, Profit & Loss
-- Matrices, Vectors, Complex Numbers, Logarithms
-- Sequences & Series, Permutation & Combination
-- Probability, Set Theory, Other
+TOPIC CLASSIFICATION - pick ONLY ONE topic from this list:
+- Arithmetic
+- Algebra
+- Quadratic Equations
+- Linear Equations
+- Simultaneous Equations
+- Geometry
+- Trigonometry
+- Calculus
+- Statistics
+- Mensuration
+- Number Theory
+- Percentage
+- Ratio & Proportion
+- Time & Work
+- Time & Distance
+- Simple Interest
+- Compound Interest
+- Profit & Loss
+- Matrices
+- Vectors
+- Complex Numbers
+- Logarithms
+- Sequences & Series
+- Permutation & Combination
+- Probability
+- Set Theory
+- Other
 
 CALCULATION RULES:
 - ALWAYS verify answer by substituting back
